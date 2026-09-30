@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pronto — Your calendar, one conversation away</title>
+  <meta name="description" content="Pronto is an AI scheduling assistant. Type it, say it, or text it — Pronto turns plain language into calendar events across Google Calendar and Outlook, and keeps your whole day in one view." />
+  <meta name="theme-color" content="#FBF9F7" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#151210" media="(prefers-color-scheme: dark)" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Pronto" />
+  <meta property="og:title" content="Pronto — Your calendar, one conversation away" />
+  <meta property="og:description" content="Type it, say it, or text it. Pronto turns plain language into calendar events across Google Calendar and Outlook." />
+  <meta property="og:image" content="assets/og.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <script>
+    // Apply saved theme before first paint to avoid a flash.
+    (function () {
+      document.documentElement.classList.add('js');
+      try {
+        var t = localStorage.getItem('pronto-theme');
+        if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <!-- Icon sprite -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+      <symbol id="i-repeat" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8Z"/></symbol>
+      <symbol id="i-split" viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M12 22v-8.3a4 4 0 0 0-1.17-2.83L3 3"/><path d="m15 9 6-6"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+      <symbol id="i-contact" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2"/><circle cx="12" cy="11" r="3"/><path d="M7 21v-1a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+      <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+      <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+      <symbol id="i-logo" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="#F97316" stroke="none"/><path d="M16 7.5a8.5 8.5 0 1 1-4.9 15.45L7.5 24.5l1.3-3.9A8.5 8.5 0 0 1 16 7.5Z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 12v4.2l2.8 1.8" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    </defs>
+  </svg>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ============ Header ============ -->
+  <header class="site-header" data-header>
+    <div class="container header-inner">
+      <a class="brand" href="#top" aria-label="Pronto home">
+        <svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg>
+        <span class="brand-name">Pronto</span>
+      </a>
+
+      <nav class="nav" aria-label="Primary">
+        <ul class="nav-links" id="nav-links" data-nav>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#business">For business</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li class="nav-cta-mobile"><a class="btn btn-primary" href="#get-started">Get early access</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <button class="icon-btn" type="button" data-theme-toggle aria-label="Toggle dark mode">
+          <svg class="i i-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+          <svg class="i i-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+        </button>
+        <a class="btn btn-primary btn-sm header-cta" href="#get-started">Get early access</a>
+        <button class="icon-btn menu-btn" type="button" data-menu-toggle aria-controls="nav-links" aria-expanded="false" aria-label="Open menu">
+          <svg class="i i-open" aria-hidden="true"><use href="#i-menu"/></svg>
+          <svg class="i i-close" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============ Hero ============ -->
+    <section class="hero" id="top">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow-pill"><span class="live-dot" aria-hidden="true"></span> Now in early access</p>
+          <h1 class="hero-title">Your calendar, <em>one conversation</em> away.</h1>
+          <p class="hero-lede">
+            Type it, say it, or text it. Pronto turns plain language into real calendar events across
+            Google Calendar and Outlook — and keeps your whole day in one view.
+          </p>
+          <div class="hero-ctas">
+            <a class="btn btn-primary btn-lg" href="#get-started">Get early access <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
+          </div>
+          <p class="hero-note"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg> Free for personal use during early access</p>
+        </div>
+
+        <div class="hero-demo">
+          <p class="sr-only">
+            Animated example: typing “Lunch with Kofi tomorrow at 1pm at Buka” produces a preview card with the
+            title, time, place, attendee, target calendar and a confidence score. Confirming adds it to Google Calendar.
+          </p>
+          <div class="demo" aria-hidden="true" data-demo>
+            <div class="demo-window">
+              <div class="demo-chrome">
+                <span class="demo-dots"><i></i><i></i><i></i></span>
+                <span class="demo-title">Today · Pronto</span>
+                <span class="demo-chrome-spacer"></span>
+              </div>
+              <div class="demo-body">
+                <div class="demo-input" data-demo-input>
+                  <div class="demo-field">
+                    <span class="demo-placeholder">Schedule something…</span>
+                    <span class="demo-typed" data-demo-typed></span><span class="demo-caret"></span>
+                    <span class="demo-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                  </div>
+                  <span class="demo-mic"><svg class="i" aria-hidden="true"><use href="#i-mic"/></svg></span>
+                </div>
+
+                <div class="demo-stage">
+                  <div class="demo-parsing" data-demo-parsing>
+                    <span class="spark"><svg class="i"><use href="#i-spark"/></svg></span> Understanding…
+                  </div>
+
+                  <article class="intent" data-demo-card>
+                    <header class="intent-head">
+                      <h3 class="intent-title" data-f="title">Lunch with Kofi</h3>
+                      <span class="cal-pill" data-f="cal" data-cal="google">Personal · Google</span>
+                    </header>
+                    <ul class="intent-meta">
+                      <li data-row="when"><svg class="i"><use href="#i-clock"/></svg><span data-f="when">Tomorrow · 1:00 – 2:00 PM</span></li>
+                      <li data-row="where"><svg class="i"><use href="#i-pin"/></svg><span data-f="where">Buka Restaurant</span></li>
+                      <li data-row="who"><svg class="i"><use href="#i-users"/></svg><span data-f="who">Kofi Mensah</span></li>
+                      <li data-row="repeat" hidden><svg class="i"><use href="#i-repeat"/></svg><span data-f="repeat"></span></li>
+                    </ul>
+                    <div class="intent-conf">
+                      <span class="conf-label">Confidence</span>
+                      <span class="conf-bar"><i data-f="bar" style="width:96%"></i></span>
+                      <b data-f="conf">96%</b>
+                    </div>
+                    <div class="intent-actions">
+                      <span class="d-btn d-btn-ghost">Edit</span>
+                      <span class="d-btn d-btn-primary" data-demo-confirm><svg class="i"><use href="#i-check"/></svg> Confirm</span>
+                    </div>
+                  </article>
+
+                  <div class="demo-toast" data-demo-toast>
+                    <span class="toast-icon"><svg class="i"><use href="#i-check"/></svg></span>
+                    <span data-f="toast">Added to Google Calendar · No conflicts</span>
+                  </div>
+                </div>
+
+                <div class="demo-today">
+                  <p class="demo-today-label">Up next</p>
+                  <ul>
+                    <li><time>9:30</time><span class="ev-dot" data-cal="microsoft"></span>Team standup</li>
+                    <li><time>11:00</time><span class="ev-dot" data-cal="microsoft"></span>Design review</li>
+                    <li><time>4:00</time><span class="ev-dot" data-cal="google"></span>Pick up Nana from school</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="demo-float demo-float-a"><svg class="i"><use href="#i-mic"/></svg> Hold to speak</div>
+            <div class="demo-float demo-float-b"><svg class="i"><use href="#i-shield"/></svg> Checked for conflicts</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Works with ============ -->
+    <section class="works-with" aria-label="Integrations">
+      <div class="container works-inner">
+        <p class="works-label">Works with the tools you already use</p>
+        <ul class="works-list">
+          <li><span class="ww-dot" data-cal="google"></span>Google Calendar</li>
+          <li><span class="ww-dot" data-cal="microsoft"></span>Microsoft Outlook</li>
+          <li><span class="ww-dot" data-cal="apple"></span>Apple Calendar <span class="soon">Soon</span></li>
+          <li><span class="ww-dot ww-wa"></span>WhatsApp <span class="soon">Soon</span></li>
+          <li><span class="ww-dot ww-tg"></span>Telegram <span class="soon">Soon</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ How it works ============ -->
+    <section class="section" id="how">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">How it works</p>
+          <h2>Say what you mean. <em>Pronto</em> handles the rest.</h2>
+          <p class="section-lede">No forms, no dropdowns, no hunting for the right calendar. Just tell Pronto what you need, the way you’d tell a person.</p>
+        </div>
+
+        <ol class="steps">
+          <li class="step reveal">
+            <span class="step-num">1</span>
+            <h3>Say it your way</h3>
+            <p>Type “coffee with Ama next Tuesday at 10” — or hold the mic and just say it. Space bar works too.</p>
+            <div class="step-visual">
+              <div class="mini-input"><span>coffee with Ama next Tuesday at 10</span><span class="mini-mic"><svg class="i" aria-hidden="true"><use href="#i-mic"/></svg></span></div>
+            </div>
+          </li>
+          <li class="step reveal">
+            <span class="step-num">2</span>
+            <h3>Pronto understands</h3>
+            <p>It pulls out the title, time, people, place and repeat rules — and tells you how sure it is.</p>
+            <div class="step-visual">
+              <div class="mini-tags">
+                <span class="tag"><b>What</b> Coffee with Ama</span>
+                <span class="tag"><b>When</b> Tue · 10:00 AM</span>
+                <span class="tag"><b>Who</b> Ama Boateng</span>
+                <span class="tag tag-ok"><b>Sure</b> 94%</span>
+              </div>
+            </div>
+          </li>
+          <li class="step reveal">
+            <span class="step-num">3</span>
+            <h3>Confirm, and it’s done</h3>
+            <p>Pronto checks for clashes, picks the right calendar, and creates the event. Invites go out as usual.</p>
+            <div class="step-visual">
+              <div class="mini-toast"><span class="toast-icon"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg></span> Added to Outlook · Ama invited</div>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ Features ============ -->
+    <section class="section section-alt" id="features">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Features</p>
+          <h2>Everything your calendar should have done <em>all along</em>.</h2>
+        </div>
+
+        <div class="bento">
+          <article class="card card-wide reveal">
+            <div class="card-icon"><svg class="i" aria-hidden="true"><use href="#i-spark"/></svg></div>
+            <h3>Natural language, for real</h3>
+            <p>Dates, times, durations, people, places, and “every other Thursday” — Pronto gets it. Anything it’s unsure about is flagged before a single event is saved.</p>
+            <ul class="chips" aria-label="Example requests">
+              <li>Dinner with Esi Friday 7pm at Kozo</li>
+              <li>Block 2 hours for deep work tomorrow morning</li>
+              <li>Standup every weekday at 9:30</li>
+              <li>Push my dentist appointment to next week</li>
+              <li>Cancel my 3pm call</li>
+            </ul>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-icon"><svg class="i" aria-hidden="true"><use href="#i-mic"/></svg></div>
+            <h3>Hold to speak</h3>
+            <p>Talk instead of type. You’ll see the transcript before anything is scheduled, so you can fix a word first.</p>
+            <div class="voice-viz" aria-hidden="true">
+              <span class="vv-mic"><svg class="i"><use href="#i-mic"/></svg></span>
+              <span class="vv-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            </div>
+          </article>
+
+          <article class="card card-tall reveal">
+            <div class="card-icon"><svg class="i" aria-hidden="true"><use href="#i-calendar"/></svg></div>
+            <h3>Every calendar, one view</h3>
+            <p>Work and personal, Google and Outlook — side by side, colour-coded, always in sync.</p>
+            <div class="week" aria-hidden="true">
+              <div class="week-head"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span></div>
+              <div class="week-grid">
+                <div class="week-col">
+                  <span class="ev" data-cal="microsoft" style="--s:1.5;--d:.5"></span>
+                  <span class="ev" data-cal="google" style="--s:5;--d:1">Lunch</span>
+                </div>
+                <div class="week-col">
+                  <span class="ev" data-cal="microsoft" style="--s:1.5;--d:.5"></span>
+                  <span class="ev" data-cal="microsoft" style="--s:3;--d:1.5">Review</span>
+                  <span class="ev" data-cal="apple" style="--s:8;--d:1">Dentist</span>
+                </div>
+                <div class="week-col">
+                  <span class="ev" data-cal="microsoft" style="--s:1.5;--d:.5"></span>
+                  <span class="ev" data-cal="microsoft" style="--s:6;--d:1">1:1</span>
+                </div>
+                <div class="week-col">
+                  <span class="ev" data-cal="microsoft" style="--s:1.5;--d:.5"></span>
+                  <span class="ev" data-cal="google" style="--s:4;--d:1">Yoga</span>
+                  <span class="ev ev-new" data-cal="google" style="--s:7.5;--d:1.5">Kids</span>
+                </div>
+                <div class="week-col">
+                  <span class="ev" data-cal="microsoft" style="--s:1.5;--d:.5"></span>
+                  <span class="ev" data-cal="microsoft" style="--s:7;--d:.5">Ama</span>
+                </div>
+              </div>
+              <div class="week-legend">
+                <span><i data-cal="google"></i>Google</span>
+                <span><i data-cal="microsoft"></i>Outlook</span>
+                <span><i data-cal="apple"></i>Apple</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-icon"><svg class="i" aria-hidden="true"><use href="#i-split"/></svg></div>
+            <h3>The right calendar, automatically</h3>
+            <p>Set up Work and Personal profiles. Pronto routes each event by who’s invited — colleagues to Outlook, friends to Google.</p>
+            <div class="route" aria-hidden="true">
+              <div class="route-row"><span class="route-from">Anyone @northwind.co</span><svg class="i"><use href="#i-arrow"/></svg><span class="cal-pill" data-cal="microsoft">Work · Outlook</span></div>
+              <div class="route-row"><span class="route-from">Anyone @gmail.com</span><svg class="i"><use href="#i-arrow"/></svg><span class="cal-pill" data-cal="google">Personal · Google</span></div>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-icon"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg></div>
+            <h3>Clashes caught early</h3>
+            <p>Before anything is booked, Pronto checks every connected calendar for overlaps and tells you what’s in the way.</p>
+            <div class="conflict" aria-hidden="true">
+              <svg class="i"><use href="#i-alert"/></svg>
+              <span><b>Heads up</b> — overlaps with <u>Design review</u>, 2:30–3:30 PM</span>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-icon"><svg class="i" aria-hidden="true"><use href="#i-contact"/></svg></div>
+            <h3>All your contacts, one list</h3>
+            <p>Pronto merges contacts from Google and Microsoft, so “lunch with Kofi” knows exactly which Kofi you mean.</p>
+            <div class="contacts" aria-hidden="true">
+              <span class="avatar" style="--h:24">KM</span>
+              <span class="avatar" style="--h:210">AB</span>
+              <span class="avatar" style="--h:150">EA</span>
+              <span class="avatar" style="--h:280">NO</span>
+              <span class="avatar avatar-more">+248</span>
+            </div>
+          </article>
+
+          <article class="card reveal">
+            <div class="card-icon"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg></div>
+            <h3>Connected, and in your control</h3>
+            <p>Pronto uses Google’s and Microsoft’s official sign-in, so it never sees your password. Disconnect any time.</p>
+            <ul class="conns" aria-hidden="true">
+              <li><span class="ww-dot" data-cal="google"></span><span class="conn-name">Google Calendar</span><span class="conn-ok">Synced 2 min ago</span></li>
+              <li><span class="ww-dot" data-cal="microsoft"></span><span class="conn-name">Outlook</span><span class="conn-ok">Synced just now</span></li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Spotlights ============ -->
+    <section class="section" id="everywhere">
+      <div class="container">
+        <div class="spotlight reveal">
+          <div class="spotlight-copy">
+            <p class="eyebrow">Daily briefing <span class="soon">Soon</span></p>
+            <h2>Your day, before you’ve had <em>coffee</em>.</h2>
+            <p class="section-lede">Every morning, Pronto sends a short summary of what’s ahead: your events, the free windows between them, and any invites still waiting on you.</p>
+            <ul class="ticks">
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Arrives at 7:00 AM your time — or whenever you like</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>By email or WhatsApp</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Stays quiet on days with nothing on</li>
+            </ul>
+          </div>
+          <div class="spotlight-visual">
+            <div class="mail" aria-hidden="true">
+              <div class="mail-top">
+                <svg class="brand-mark sm"><use href="#i-logo"/></svg>
+                <div>
+                  <p class="mail-from">Pronto <span>· 7:00 AM</span></p>
+                  <p class="mail-subject">Your day, Wednesday — 4 events</p>
+                </div>
+              </div>
+              <p class="mail-greet">Good morning, Efua ☀️</p>
+              <table class="mail-table">
+                <tbody>
+                  <tr><td>9:30</td><td>Team standup</td><td>Zoom</td></tr>
+                  <tr><td>11:00</td><td>Design review</td><td>Room 4B</td></tr>
+                  <tr><td>1:00</td><td>Lunch with Kofi</td><td>Buka</td></tr>
+                  <tr><td>4:00</td><td>Pick up Nana</td><td>School</td></tr>
+                </tbody>
+              </table>
+              <p class="mail-free"><svg class="i"><use href="#i-clock"/></svg>You’re free 2:00–4:00 PM</p>
+              <div class="mail-invite">
+                <span><b>1 invite</b> waiting · Q4 planning, Thu 10 AM</span>
+                <span class="mail-rsvp">RSVP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="spotlight spotlight-flip reveal">
+          <div class="spotlight-copy">
+            <p class="eyebrow">WhatsApp &amp; Telegram <span class="soon">Soon</span></p>
+            <h2>Schedule from the chats you <em>already</em> use.</h2>
+            <p class="section-lede">Message Pronto like you’d message a friend. Ask what’s on tomorrow, move a meeting, find a free hour — without opening another app.</p>
+            <ul class="ticks">
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>One-tap Confirm and Cancel buttons</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Asks a quick question when something’s unclear</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Reminders by email, SMS or WhatsApp</li>
+            </ul>
+          </div>
+          <div class="spotlight-visual">
+            <div class="chat" aria-hidden="true">
+              <div class="chat-head">
+                <svg class="brand-mark sm"><use href="#i-logo"/></svg>
+                <div><p class="chat-name">Pronto</p><p class="chat-status">online</p></div>
+              </div>
+              <div class="chat-body">
+                <p class="bubble out">What do I have tomorrow?</p>
+                <div class="bubble in">
+                  <b>Tomorrow, Thursday</b>
+                  <span>9:30 · Team standup</span>
+                  <span>1:00 · Lunch with Kofi</span>
+                  <span>4:00 · Dentist</span>
+                </div>
+                <p class="bubble out">Move the dentist to Friday, same time</p>
+                <div class="bubble in">
+                  <b>Dentist → Fri, 4:00–4:45 PM</b>
+                  <span>No conflicts. Shall I move it?</span>
+                  <span class="chat-btns"><span>Confirm</span><span>Cancel</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Business ============ -->
+    <section class="section band-dark" id="business">
+      <div class="container">
+        <div class="biz-grid">
+          <div class="biz-copy reveal">
+            <p class="eyebrow">Pronto for Business <span class="soon">Soon</span></p>
+            <h2>Bookings that <em>run themselves</em>.</h2>
+            <p class="section-lede">For salons, clinics, consultants, coaches — anyone whose day is made of appointments. Share a booking page, set your hours once, and let Pronto handle confirmations, reminders and reschedules.</p>
+            <a class="btn btn-primary btn-lg" href="#get-started" data-interest="business">Join the business waitlist <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+          </div>
+
+          <div class="biz-visual reveal" aria-hidden="true">
+            <div class="booking">
+              <div class="demo-chrome">
+                <span class="demo-dots"><i></i><i></i><i></i></span>
+                <span class="demo-url">pronto.app/book/glow-studio</span>
+                <span class="demo-chrome-spacer"></span>
+              </div>
+              <div class="booking-body">
+                <div class="booking-biz">
+                  <span class="biz-logo">GS</span>
+                  <div><p class="biz-name">Glow Studio</p><p class="biz-sub">Hair &amp; beauty</p></div>
+                </div>
+                <ol class="booking-steps">
+                  <li class="done">Service</li><li class="done">Staff</li><li class="active">Time</li><li>Details</li>
+                </ol>
+                <p class="booking-sel">Silk press · 90 min · with Adwoa</p>
+                <div class="booking-days">
+                  <span><small>Mon</small>6</span>
+                  <span class="on"><small>Tue</small>7</span>
+                  <span><small>Wed</small>8</span>
+                  <span><small>Thu</small>9</span>
+                  <span><small>Fri</small>10</span>
+                </div>
+                <div class="booking-slots">
+                  <span>9:00</span><span class="off">10:30</span><span>11:00</span>
+                  <span class="on">1:30</span><span>3:00</span><span class="off">4:30</span>
+                </div>
+                <span class="booking-go">Continue</span>
+              </div>
+            </div>
+            <div class="sms">
+              <p class="sms-from">SMS · Glow Studio</p>
+              <p>Hi Akua, a reminder: Silk press tomorrow at 1:30 PM with Adwoa. Need to change? pronto.app/c/x7k2</p>
+            </div>
+            <div class="biz-stat">
+              <p class="biz-stat-label">Today</p>
+              <p class="biz-stat-num">12 <span>bookings</span></p>
+              <p class="biz-stat-sub"><span class="ok-dot"></span>3 awaiting approval</p>
+            </div>
+          </div>
+        </div>
+
+        <ul class="biz-features">
+          <li class="reveal">
+            <svg class="i" aria-hidden="true"><use href="#i-link"/></svg>
+            <h3>A booking page in minutes</h3>
+            <p>Customers pick a service, a person and a time — no account needed. Share the link or embed it on your own site.</p>
+          </li>
+          <li class="reveal">
+            <svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg>
+            <h3>Availability, your rules</h3>
+            <p>Working hours, holidays, buffers between appointments, minimum notice and how far ahead people can book.</p>
+          </li>
+          <li class="reveal">
+            <svg class="i" aria-hidden="true"><use href="#i-bell"/></svg>
+            <h3>Reminders that cut no-shows</h3>
+            <p>Automatic confirmations, plus reminders by email and SMS 24 hours and 1 hour before — each with an easy cancel link.</p>
+          </li>
+          <li class="reveal">
+            <svg class="i" aria-hidden="true"><use href="#i-users"/></svg>
+            <h3>Built for teams</h3>
+            <p>Invite staff, set admin and staff roles, and let people block personal time straight from their own calendars.</p>
+          </li>
+          <li class="reveal">
+            <svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>
+            <h3>Approve what matters</h3>
+            <p>Require a manual OK for specific services before they’re confirmed. Everything else books itself.</p>
+          </li>
+          <li class="reveal">
+            <svg class="i" aria-hidden="true"><use href="#i-download"/></svg>
+            <h3>Your data, exportable</h3>
+            <p>Filter bookings by date, staff, service or status — and export to CSV whenever you need it.</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ Pricing ============ -->
+    <section class="section" id="pricing">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Pricing</p>
+          <h2>Free for you. <em>Simple</em> for your business.</h2>
+          <p class="section-lede">Personal scheduling is free while we’re in early access. Business plans launch with a 14-day free trial of Pro.</p>
+        </div>
+
+        <div class="plans">
+          <article class="plan reveal">
+            <h3>Personal</h3>
+            <p class="plan-for">For your own calendars</p>
+            <p class="plan-price">Free <span>during early access</span></p>
+            <ul class="plan-list">
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Natural language &amp; voice scheduling</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Google Calendar &amp; Outlook</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Unified calendar view</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Work &amp; personal profiles</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Conflict checks &amp; contacts</li>
+            </ul>
+            <a class="btn btn-ghost btn-block" href="#get-started" data-interest="personal">Get early access</a>
+          </article>
+
+          <article class="plan reveal">
+            <h3>Business Starter</h3>
+            <p class="plan-for">For solo practitioners</p>
+            <p class="plan-price plan-price-tbd">Coming soon</p>
+            <ul class="plan-list">
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>1 staff member</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Up to 50 bookings a month</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Public, embeddable booking page</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Email &amp; SMS confirmations and reminders</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Availability rules &amp; buffers</li>
+            </ul>
+            <a class="btn btn-ghost btn-block" href="#get-started" data-interest="business">Join the waitlist</a>
+          </article>
+
+          <article class="plan plan-featured reveal">
+            <span class="plan-badge">14-day free trial</span>
+            <h3>Business Pro</h3>
+            <p class="plan-for">For growing teams</p>
+            <p class="plan-price plan-price-tbd">Coming soon</p>
+            <ul class="plan-list">
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Everything in Starter</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Unlimited staff</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Unlimited bookings</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Admin &amp; staff roles</li>
+              <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Manual approvals &amp; CSV export</li>
+            </ul>
+            <a class="btn btn-primary btn-block" href="#get-started" data-interest="business">Join the waitlist</a>
+          </article>
+        </div>
+        <p class="plans-note reveal">Business plans will be available monthly or annually.</p>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section section-alt" id="faq">
+      <div class="container faq-wrap">
+        <div class="section-head section-head-left reveal">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions, <em>answered</em>.</h2>
+          <p class="section-lede">Something else on your mind? <a href="mailto:hello@pronto.app">Drop us a line</a>.</p>
+        </div>
+
+        <div class="faq">
+          <details class="reveal">
+            <summary>Which calendars does Pronto work with?</summary>
+            <p>Google Calendar and Microsoft Outlook today, and you can connect more than one account. Apple Calendar support is on the way.</p>
+          </details>
+          <details class="reveal">
+            <summary>Do I have to switch away from my current calendar?</summary>
+            <p>No. Pronto works on top of the calendars you already use. Events are created in your real calendar, so they show up on your phone, laptop and anywhere else as usual.</p>
+          </details>
+          <details class="reveal">
+            <summary>How does Pronto access my calendar?</summary>
+            <p>Through Google’s and Microsoft’s official sign-in. Pronto never sees your password, and you can disconnect a calendar at any time from Settings — which also removes its events from Pronto.</p>
+          </details>
+          <details class="reveal">
+            <summary>What if Pronto gets something wrong?</summary>
+            <p>Nothing is booked until you confirm it. Every request shows a preview with a confidence score, and Pronto flags anything it isn’t sure about so you can edit it first.</p>
+          </details>
+          <details class="reveal">
+            <summary>How does voice input work?</summary>
+            <p>Hold the mic button — or the space bar — and speak for up to a minute. Your words appear as text so you can check them before Pronto schedules anything.</p>
+          </details>
+          <details class="reveal">
+            <summary>Do my customers need a Pronto account to book?</summary>
+            <p>No. With Pronto for Business, customers book from your public page with just their name, email and phone number, and get a calendar file to add the appointment to their own calendar.</p>
+          </details>
+          <details class="reveal">
+            <summary>Is there a mobile app?</summary>
+            <p>Pronto works in any modern browser today. Native iOS and Android apps are in development.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="section cta" id="get-started">
+      <div class="cta-glow" aria-hidden="true"></div>
+      <div class="container cta-inner reveal">
+        <svg class="brand-mark lg" aria-hidden="true"><use href="#i-logo"/></svg>
+        <h2>Spend less time <em>scheduling</em>.</h2>
+        <p class="section-lede">Join early access and be first to try new features as they land.</p>
+
+        <form class="waitlist" data-waitlist novalidate>
+          <fieldset class="interest">
+            <legend class="sr-only">I’m interested in</legend>
+            <label><input type="radio" name="interest" value="personal" checked /><span>For me</span></label>
+            <label><input type="radio" name="interest" value="business" /><span>For my business</span></label>
+          </fieldset>
+          <div class="waitlist-row">
+            <label class="sr-only" for="waitlist-email">Email address</label>
+            <input id="waitlist-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+            <button class="btn btn-primary btn-lg" type="submit">Get early access</button>
+          </div>
+          <p class="waitlist-msg" data-waitlist-msg role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ Footer ============ -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a class="brand" href="#top" aria-label="Pronto home">
+          <svg class="brand-mark" aria-hidden="true"><use href="#i-logo"/></svg>
+          <span class="brand-name">Pronto</span>
+        </a>
+        <p>Your calendar, one conversation away.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Footer">
+        <div>
+          <p class="footer-h">Product</p>
+          <ul>
+            <li><a href="#how">How it works</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="footer-h">Business</p>
+          <ul>
+            <li><a href="#business">Pronto for Business</a></li>
+            <li><a href="#get-started" data-interest="business">Join the waitlist</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="footer-h">Company</p>
+          <ul>
+            <li><a href="mailto:hello@pronto.app">hello@pronto.app</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <div class="container footer-base">
+      <p>© <span data-year>2026</span> Pronto. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js" defer></script>
+</body>
+</html>
