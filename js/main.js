@@ -6,10 +6,12 @@
   // ---------------------------------------------------------------------------
 
   // Point this at a form backend (Formspree, Getform, Basin, your own API, …) to
-  // collect sign-ups. It receives a POST with `email` and `interest` fields.
+  // collect sign-ups. It receives a POST with `email` and `team` fields.
   // Leave empty to fall back to opening the visitor's email app.
   var WAITLIST_ENDPOINT = '';
   var CONTACT_EMAIL = 'hello@pronto.app';
+
+  var TEAM_LABELS = { solo: 'Just me', team: '2–10 staff', large: '10+ staff' };
 
   var root = document.documentElement;
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -121,46 +123,85 @@
   }
 
   // ---------------------------------------------------------------------------
-  // Hero demo
+  // Hero demo — the assistant books, invoices and reschedules
   // ---------------------------------------------------------------------------
 
   var EXAMPLES = [
     {
       mode: 'type',
-      text: 'Lunch with Kofi tomorrow at 1pm at Buka',
-      title: 'Lunch with Kofi',
-      cal: 'google',
-      calLabel: 'Personal · Google',
-      when: 'Tomorrow · 1:00 – 2:00 PM',
-      where: 'Buka Restaurant',
-      who: 'Kofi Mensah',
-      conf: 96,
-      toast: 'Added to Google Calendar · No conflicts'
-    },
-    {
-      mode: 'voice',
-      text: 'Move my 3pm call with Ama to Friday',
-      title: 'Call with Ama',
-      cal: 'microsoft',
-      calLabel: 'Work · Outlook',
-      when: 'Friday · 3:00 – 3:30 PM',
-      where: 'Microsoft Teams',
-      who: 'Ama Boateng',
-      conf: 92,
-      toast: 'Moved in Outlook · Ama notified'
+      text: 'Book Akua for a silk press Tuesday at 1:30 with Adwoa',
+      kind: 'New booking',
+      title: 'Silk press · Akua Owusu',
+      pill: 'with Adwoa',
+      tone: 'violet',
+      rows: [
+        { icon: 'clock', text: 'Tue · 1:30 – 3:00 PM' },
+        { icon: 'tag', text: 'Silk press · 90 min', amount: '$85.00' },
+        { icon: 'user', text: 'Akua Owusu · returning customer' }
+      ],
+      conf: 95,
+      action: 'Confirm booking',
+      toast: 'Booked · Confirmation sent to Akua'
     },
     {
       mode: 'type',
-      text: 'Gym every Monday and Wednesday at 7am',
-      title: 'Gym',
-      cal: 'google',
-      calLabel: 'Personal · Google',
-      when: 'Mon & Wed · 7:00 – 8:00 AM',
-      repeat: 'Repeats weekly',
-      conf: 89,
-      toast: 'Added to Google Calendar · Repeats weekly'
+      text: 'Invoice Akua for her silk press and a trim',
+      kind: 'Invoice #1042 · Draft',
+      title: 'Akua Owusu',
+      pill: 'Due on receipt',
+      tone: 'amber',
+      rows: [
+        { icon: 'receipt', text: 'Silk press · 90 min', amount: '$85.00' },
+        { icon: 'receipt', text: 'Trim · add-on', amount: '$20.00' },
+        { cls: 'total', text: 'Total', amount: '$105.00' }
+      ],
+      conf: 97,
+      action: 'Send invoice',
+      toast: 'Invoice sent by SMS · Pay link included'
+    },
+    {
+      mode: 'voice',
+      text: 'Move Kofi’s 4pm haircut to Thursday',
+      kind: 'Reschedule',
+      title: 'Haircut · Kofi Mensah',
+      pill: 'with Kwame',
+      tone: 'blue',
+      rows: [
+        { icon: 'clock', text: 'Thu · 4:00 – 4:45 PM' },
+        { icon: 'swap', text: 'Moved from Wed · 4:00 PM' },
+        { icon: 'shield', text: 'Kwame is free — no clashes' }
+      ],
+      conf: 93,
+      action: 'Reschedule',
+      toast: 'Moved · Kofi notified by SMS'
     }
   ];
+
+  var SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function iconEl(name) {
+    var svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('class', 'i');
+    var use = document.createElementNS(SVG_NS, 'use');
+    use.setAttribute('href', '#i-' + name);
+    svg.appendChild(use);
+    return svg;
+  }
+
+  function rowEl(row) {
+    var li = document.createElement('li');
+    if (row.cls) li.className = row.cls;
+    if (row.icon) li.appendChild(iconEl(row.icon));
+    var text = document.createElement('span');
+    text.textContent = row.text;
+    li.appendChild(text);
+    if (row.amount) {
+      var amount = document.createElement('b');
+      amount.textContent = row.amount;
+      li.appendChild(amount);
+    }
+    return li;
+  }
 
   var demo = document.querySelector('[data-demo]');
 
@@ -175,21 +216,20 @@
     var field = function (name) {
       return demo.querySelector('[data-f="' + name + '"]');
     };
-    var row = function (name) {
-      return demo.querySelector('[data-row="' + name + '"]');
-    };
 
     var fill = function (ex) {
+      field('kind').textContent = ex.kind;
       field('title').textContent = ex.title;
-      var pill = field('cal');
-      pill.textContent = ex.calLabel;
-      pill.setAttribute('data-cal', ex.cal);
-      field('when').textContent = ex.when;
-      ['where', 'who', 'repeat'].forEach(function (k) {
-        row(k).hidden = !ex[k];
-        field(k).textContent = ex[k] || '';
+      var pill = field('pill');
+      pill.textContent = ex.pill;
+      pill.setAttribute('data-tone', ex.tone);
+      var rows = field('rows');
+      rows.textContent = '';
+      ex.rows.forEach(function (r) {
+        rows.appendChild(rowEl(r));
       });
       field('conf').textContent = ex.conf + '%';
+      field('action').textContent = ex.action;
       field('toast').textContent = ex.toast;
     };
 
@@ -262,7 +302,7 @@
           input.classList.add('has-text');
           for (var i = 1; i <= ex.text.length; i++) {
             typed.textContent = ex.text.slice(0, i);
-            await sleep(34 + Math.random() * 46);
+            await sleep(30 + Math.random() * 40);
           }
           await sleep(450);
         }
@@ -279,7 +319,7 @@
         card.classList.add('is-on');
         await sleep(120);
         field('bar').style.width = ex.conf + '%';
-        await sleep(1900);
+        await sleep(2100);
 
         // Confirm
         confirmBtn.classList.add('is-pressed');
@@ -305,15 +345,15 @@
 
   var form = document.querySelector('[data-waitlist]');
 
-  function selectInterest(value) {
+  function selectTeam(value) {
     if (!form) return;
-    var radio = form.querySelector('input[name="interest"][value="' + value + '"]');
+    var radio = form.querySelector('input[name="team"][value="' + value + '"]');
     if (radio) radio.checked = true;
   }
 
-  document.querySelectorAll('[data-interest]').forEach(function (link) {
+  document.querySelectorAll('[data-team]').forEach(function (link) {
     link.addEventListener('click', function () {
-      selectInterest(link.getAttribute('data-interest'));
+      selectTeam(link.getAttribute('data-team'));
     });
   });
 
@@ -338,11 +378,12 @@
         return;
       }
 
-      var interest = (form.querySelector('input[name="interest"]:checked') || {}).value || 'personal';
+      var team = (form.querySelector('input[name="team"]:checked') || {}).value || 'solo';
 
       if (!WAITLIST_ENDPOINT) {
-        var subject = 'Pronto early access' + (interest === 'business' ? ' — Business' : '');
-        var body = 'Please add me to the Pronto early access list.\n\nEmail: ' + email + '\nInterested in: ' + interest;
+        var subject = 'Pronto early access';
+        var body =
+          'Please add my business to the Pronto early access list.\n\nEmail: ' + email + '\nTeam size: ' + TEAM_LABELS[team];
         window.location.href =
           'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
         say('Opening your email app to finish signing up…');
@@ -354,7 +395,7 @@
       try {
         var data = new FormData();
         data.append('email', email);
-        data.append('interest', interest);
+        data.append('team', team);
         var res = await fetch(WAITLIST_ENDPOINT, {
           method: 'POST',
           body: data,
@@ -362,7 +403,7 @@
         });
         if (!res.ok) throw new Error('Request failed: ' + res.status);
         form.reset();
-        selectInterest(interest);
+        selectTeam(team);
         say('You’re on the list! We’ll be in touch soon.', 'ok');
       } catch (err) {
         say('Something went wrong. Please try again, or email ' + CONTACT_EMAIL + '.', 'err');

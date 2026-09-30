@@ -1,7 +1,9 @@
 # Pronto — marketing site
 
-The public website for Pronto, the AI scheduling assistant that turns plain language — typed, spoken, or
-texted — into real calendar events across Google Calendar and Outlook.
+The public website for Pronto, the appointment and invoicing app for service businesses — salons, clinics,
+studios, trainers, consultants and anyone else whose day runs on bookings. The page covers online booking, team
+scheduling, automatic reminders, invoices customers pay from a link, and the AI assistant that books, reschedules
+and invoices from a typed or spoken request.
 
 It's a single static page: plain HTML, CSS, and a little vanilla JavaScript. No build step, no dependencies.
 
@@ -34,13 +36,15 @@ A few values are placeholders until the real ones are decided:
 
 | What | Where | Notes |
 | --- | --- | --- |
-| Waitlist endpoint | `WAITLIST_ENDPOINT` in `js/main.js` | Any form backend that accepts a POST with `email` and `interest` (Formspree, Getform, Basin, or the Pronto API). While empty, the form opens the visitor's email app instead. |
+| Waitlist endpoint | `WAITLIST_ENDPOINT` in `js/main.js` | Any form backend that accepts a POST with `email` and `team` (`solo`, `team` or `large`) — Formspree, Getform, Basin, or the Pronto API. While empty, the form opens the visitor's email app instead. |
 | Contact email | `CONTACT_EMAIL` in `js/main.js`, plus the `mailto:` links in `index.html` | Currently `hello@pronto.app`. |
 | Social image URL | `og:image` in `index.html` | Social networks need an absolute URL, e.g. `https://your-domain/assets/og.png`. |
-| Business pricing | Pricing section in `index.html` | Plans show "Coming soon" until prices are set. |
+| Pricing | Pricing section in `index.html` | Starter and Pro show "Coming soon" until prices are set. |
+| Currency | Hero demo (`EXAMPLES` in `js/main.js`), invoice and stats mockups in `index.html` | Sample amounts use `$`, matching the business app's dashboard. |
+| Payment methods | Invoicing section and FAQ | Copy says "secure payment link" without naming providers (card, mobile money, …) — add them once the payment integration is chosen. |
 
-Features that aren't live yet (Apple Calendar, daily briefing, WhatsApp/Telegram, Pronto for Business) are
-labelled **Soon** on the page — remove the badge as each one ships.
+The page presents Pronto as being in early access, so the call to action everywhere is joining the early-access
+list rather than signing up.
 
 ## Deploy
 
